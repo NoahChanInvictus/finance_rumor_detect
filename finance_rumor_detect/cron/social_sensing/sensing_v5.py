@@ -11,6 +11,9 @@ from elasticsearch import Elasticsearch
 from  mappings_social_sensing import mappings_sensing_task
 from text_classify.test_topic import topic_classfiy
 from duplicate import duplicate
+from openpyxl import Workbook
+import codecs
+sys.setdefaultencoding('utf-8')
 reload(sys)
 sys.path.append("../../")
 from global_utils import es_flow_text as es_text
@@ -378,6 +381,9 @@ def social_sensing(task_detail):
     task_name = task_detail[0]
     social_sensors = task_detail[1]
     ts = int(task_detail[2])
+    wb = Workbook()
+    ws = wb.create_sheet()
+
 
     print ts2date(ts)
     # PART 1
@@ -555,7 +561,54 @@ def social_sensing(task_detail):
     results['weibo_total_number'] = current_total_count
     results['timestamp'] = ts
     # es存储当前时段的信息
-    es_prediction.index(index=index_sensing_task, doc_type=type_sensing_task, id=ts, body=results)
-
+    #es_prediction.index(index=index_sensing_task, doc_type=type_sensing_task, id=ts, body=results)
+    #print results
+    #temp_titles = list(results.keys())
+    #temp_results = list(results.values())
+    #ws.append(temp_titles)
+    #ws.append(temp_results)
+    #wb.save('./temp/temp'+str(ts)+'.xlsx')
+    #查找并展示经济类的相关微博
+    eco_mid_list = get_economics_mids(mid_value)
+    print eco_mid_list
+    eco_weibos = get_weibo_content(index_list,eco_mid_list)
+    print eco_weibos
+    #eco_content = eco_weibos['_source']['text']
+    weibo_content = ''
+    for aaa in eco_weibos:
+        weibo_content += aaa['_source']['text']+'\n'
+    save_results(weibo_content,ts)
     return "1"
+
+def save_results(items,ts):
+    with open('./temp/temp'+str(ts)+'.txt','w') as tf:
+        tf.write(codecs.BOM_UTF8)
+        tf.write(items)
+
+
+
+def get_weibo_content(index_list,mid_list):
+    query_body = {
+            "query":{
+                "filtered":{
+                    "filter":{
+                            "terms":{"mid":mid_list}
+                        }
+                    }
+                },
+            "size": 99999
+            
+            }
+    search_results = es_text.search(index=index_list, doc_type="text", body=query_body)['hits']['hits']
+    return search_results
+
+
+def get_economics_mids(mid_topic_value):
+    items = []
+    for k,v in mid_topic_value.iteritems():
+        if v == 7:
+            items.append(k)
+    return items
+
+
 

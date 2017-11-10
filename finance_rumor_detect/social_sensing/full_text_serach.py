@@ -8,12 +8,23 @@ import numpy as np
 #from text_classify.test_topic import topic_classfiy
 from elasticsearch import Elasticsearch
 from duplicate import duplicate
-from diffusion_prediction.global_utils import es_flow_text as es_text
-from diffusion_prediction.global_utils import es_user_profile as es_profile
-from diffusion_prediction.global_utils import es_prediction
-from diffusion_prediction.global_utils import R_SOCIAL_SENSING as r
-from diffusion_prediction.time_utils import ts2datetime, datetime2ts,ts2date
-from diffusion_prediction.global_utils import flow_text_index_name_pre, flow_text_index_type, profile_index_name, profile_index_type
+#from diffusion_prediction.global_utils import es_flow_text as es_text
+#from diffusion_prediction.global_utils import es_user_profile as es_profile
+#from diffusion_prediction.global_utils import es_prediction
+#from diffusion_prediction.global_utils import R_SOCIAL_SENSING as r
+#from diffusion_prediction.time_utils import ts2datetime, datetime2ts,ts2date
+#from diffusion_prediction.global_utils import flow_text_index_name_pre, flow_text_index_type, profile_index_name, profile_index_type
+
+reload(sys)
+sys.path.append("../")
+from global_utils import es_flow_text as es_text
+from global_utils import es_user_profile as es_profile
+from global_utils import es_prediction
+from global_utils import R_SOCIAL_SENSING as r
+from time_utils import ts2datetime, datetime2ts,ts2date
+from global_utils import flow_text_index_name_pre, flow_text_index_type, profile_index_name, profile_index_type
+
+
 day_time = 24*3600
 DAY = 3600
 index_sensing_task = "social_sensing_task"
@@ -23,7 +34,9 @@ forward_time_range = 12*3600
 
 # 获得原创微博内容，按时间排序
 def get_origin_weibo_detail(ts, size, order, message_type=1):
-    topic_value_dict = json.loads(r.get("topic_value_dict"))
+    #print r.get("topic_value_dict")
+    #error:topic_value_dict里存的为空
+    #topic_value_dict = json.loads(r.get("topic_value_dict"))
     task_detail = es_prediction.get(index=index_sensing_task, doc_type=_id, id=ts)['_source']
 
     mid_value = json.loads(task_detail['mid_topic_value'])
@@ -548,4 +561,9 @@ def aggregation_hot_keywords(start_time, stop_time, keywords_list):
 
 
 
-
+if __name__ == '__main__':
+    ts = 1479484800
+    size = 100
+    type_value = []
+    #print get_origin_weibo_detail(ts,size,'total')
+    print get_retweet_weibo_detail(ts, size, 'message_type', [2,3])
