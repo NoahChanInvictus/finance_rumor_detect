@@ -22,7 +22,11 @@ from global_utils import R_SOCIAL_SENSING as r
 from global_utils import es_prediction
 from time_utils import ts2datetime, datetime2ts, ts2date
 
+
 from global_config import topic_value_dict
+
+from full_text_search_cyz import get_origin_weibo_detail
+
 AVERAGE_COUNT = 4000
 MEAN_COUNT = 100
 
@@ -561,7 +565,7 @@ def social_sensing(task_detail):
     results['weibo_total_number'] = current_total_count
     results['timestamp'] = ts
     # es存储当前时段的信息
-    #es_prediction.index(index=index_sensing_task, doc_type=type_sensing_task, id=ts, body=results)
+    es_prediction.index(index=index_sensing_task, doc_type=type_sensing_task, id=ts, body=results)
     #print results
     #temp_titles = list(results.keys())
     #temp_results = list(results.values())
@@ -569,15 +573,17 @@ def social_sensing(task_detail):
     #ws.append(temp_results)
     #wb.save('./temp/temp'+str(ts)+'.xlsx')
     #查找并展示经济类的相关微博
-    eco_mid_list = get_economics_mids(mid_value)
-    print eco_mid_list
-    eco_weibos = get_weibo_content(index_list,eco_mid_list)
-    print eco_weibos
+    #eco_mid_list = get_economics_mids(mid_value)
+    #size = 10
+    #get_origin_weibo_detail(ts,size,'retweeted')
+    #print eco_mid_list
+    #eco_weibos = get_weibo_content(index_list,eco_mid_list)
+    #print eco_weibos
     #eco_content = eco_weibos['_source']['text']
-    weibo_content = ''
-    for aaa in eco_weibos:
-        weibo_content += aaa['_source']['text']+'\n'
-    save_results(weibo_content,ts)
+    #weibo_content = ''
+    #for aaa in eco_weibos:
+        #weibo_content += aaa['_source']['text']+'\n'
+    #save_results(weibo_content,ts)
     return "1"
 
 def save_results(items,ts):
